@@ -41,4 +41,29 @@ sudo podman push quay.io/bitnami/nginx
 sudo podman build -t NAME:TAG DIR
 ```
 
-## New app from template on OCP
+## Creating application in different ways
+1. Creating  an application based on an image, mysql, from Docker Hub, with the label set to db=mysql
+```
+oc new-app mysql --as-deployment-config \
+> MYSQL_USER=user MYSQL_PASSWORD=pass MYSQL_DATABASE=testdb -l db=mysql
+```
+2. Creating an application based on an image from a private Docker image registry:
+```
+oc new-app --docker-image=myregistry.com/mycompany/myapp --name=myapp --as-deployment-config
+```
+3. Creating an application based on source code stored in a Git repository:
+```
+oc new-app https://github.com/openshift/ruby-hello-world --name=ruby-hello --as-deployment-config
+```
+4. Desribe information about template
+```
+oc describe template postgresql-ephemeral -n openshift
+```
+
+5. Create application from temmplate
+```
+oc new-app --template=postgresql-ephemeral -p POSTGRESQL_DATABASE=acmedb |
+> -p POSTGRESQL_PASSWORD=redhat -p POSTGRESQL_USER=acmeadmin -p DATABASE_SERVICE_NAME=infodb -l app=info -l db=postgres
+```
+
+
