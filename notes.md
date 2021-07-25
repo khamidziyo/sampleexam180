@@ -63,7 +63,70 @@ oc describe template postgresql-ephemeral -n openshift
 5. Create application from temmplate
 ```
 oc new-app --template=postgresql-ephemeral -p POSTGRESQL_DATABASE=acmedb |
-> -p POSTGRESQL_PASSWORD=redhat -p POSTGRESQL_USER=acmeadmin -p DATABASE_SERVICE_NAME=infodb -l app=info -l db=postgres
+> -p POSTGRESQL_PASSWORD=redhat -p POSTGRESQL_USER=acmeadmin -p DATABASE_SERVICE_NAME=infodb -l app=info -l db=postgres 
+```
+expose route to the service
+```
+oc expose svc/infodb
+oc get route
 ```
 
+6. Create an application based on git repo. (Source to image)
+```
+oc new-app --as-deployment-config  php~https://github.com/openshift/sti-ruby.git#develop --context-dir=2.0 --name=php-helloworld 
+```
 
+7. Start a new build after changing source code
+```
+oc start-build php-helloworld
+```
+
+8. List all local available templates/images
+```
+oc new-app --list
+```
+9. List template parametres
+```
+oc process --parameters mysql-persistent -n openshift
+```
+10. Process template and create multi-container application
+```
+oc process \
+> -f todo-template.json -p RHT_OCP4_QUAY_USER=${RHT_OCP4_QUAY_USER} \
+> | oc create -f -
+```
+
+same result can be achieved using `oc new-app` command without processing the template first. Just wait little bit after exposing the service
+```
+oc new-app -f todo-template.json -p RHT_OCP4_QUAY_USER=${RHT_OCP4_QUAY_USER}
+```
+## Troubleshooting
+
+
+1.  retrieve the logs from a build configuration
+```
+oc logs bc/<application-name>
+```
+2. If a build fails, after finding and fixing the issues, run the following command to request a new build:
+```
+oc start-build <application-name>
+```
+3. Deployment logs
+```
+oc logs dc/<application-name>
+```
+
+4. relax the OpenShift project security with the command `oc adm policy`. This's used when container user has permission issues
+```
+oc adm policy add-scc-to-user anyuid -z default
+```
+
+5. automated way to remove obsolete images and other resources.
+```
+oc adm prune
+```
+
+6. Temporarily access some of these missing commands is mounting the host binaries folders, such as /bin, /sbin, and /lib, as volumes inside the container
+```
+sudo podman run -it -v /bin:/bin image /bin/bash
+```
