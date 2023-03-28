@@ -98,7 +98,7 @@ Build your image with a tag of skeeter:1.0. Run a container in detached mode nam
 
 You can test your container by running
 
-    mosquitto_sub -h 127.0.0.1 -p 11883 -t “#”.
+    mosquitto_sub -h 127.0.0.1 -p 11883 -t “#”
 
 If your container is working correctly, every 3 seconds you will see:
 
